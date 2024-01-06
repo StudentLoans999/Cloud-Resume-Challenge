@@ -1,6 +1,6 @@
 import boto3
 
-dynamodb = boto3,resouce('dynamodb')
+dynamodb = boto3.resouce('dynamodb')
 table = dynamodb.Table('Table-CRC')
 
 response = table.update_item(Key={ "id":"1"}, 
