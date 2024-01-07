@@ -2,7 +2,7 @@ import boto3
 import json
 
 def lambda_handler(event, context):
-  dynamodb = boto3.resouce('dynamodb')
+  dynamodb = boto3.resource('dynamodb')
   table = dynamodb.Table('Terraform-Table-CRC')
 
   response = table.update_item(Key={ "id":"1"}, 
