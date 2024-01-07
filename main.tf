@@ -58,6 +58,11 @@ resource "aws_iam_policy" "iam_s3_bucket_policy" {
   })
 }
 
+resource "aws_iam_user_policy_attachment" "s3_policy_attach" {
+  user       = aws_iam_user.david.name
+  policy_arn = aws_iam_policy.iam_s3_bucket_policy.arn
+}
+
 resource "aws_s3_bucket_policy" "CRC_bucket_bucket_policy" {
   bucket = aws_s3_bucket.CRC_bucket.id
 
