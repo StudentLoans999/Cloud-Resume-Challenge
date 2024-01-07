@@ -38,6 +38,26 @@ resource "aws_s3_bucket_acl" "CRC_bucket" {
   acl    = "public-read"
 }
 
+resource "aws_iam_policy" "iam_s3_bucket_policy" {
+  name        = "IamS3BucketPolicyManagement"
+  description = "IAM Policy to manage the created S3 bucket policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:PutBucketPolicy",
+          "s3:GetBucketPolicy",
+          "s3:DeleteBucketPolicy"
+        ],
+        Resource = "${aws_s3_bucket.CRC_bucket.arn}/*"
+      }
+    ]
+  })
+}
+
 resource "aws_s3_bucket_policy" "CRC_bucket_bucket_policy" {
   bucket = aws_s3_bucket.CRC_bucket.id
 
