@@ -1,7 +1,7 @@
 import boto3
 
 dynamodb = boto3.resouce('dynamodb')
-table = dynamodb.Table('Table-CRC')
+table = dynamodb.Table('Terraform-Table-CRC')
 
 response = table.update_item(Key={ "id":"1"}, 
                   UpdateExpression='SET view_count = view_count + :incr', 
