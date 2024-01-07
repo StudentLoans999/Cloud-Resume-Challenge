@@ -1,3 +1,13 @@
+terraform {
+  cloud {
+    organization = "david_richey"
+
+    workspaces {
+      name = "Cloud-Resume-Challenge"
+    }
+  }
+}
+
 provider "aws" {
   region = "us-east-1"
   # Optional: specify credentials here or through other means
@@ -5,11 +15,41 @@ provider "aws" {
 
 resource "aws_s3_bucket" "CRC_bucket" {
   bucket = "davidrichey.org"
-  acl    = "public-read"
+}
 
-  website {
-    index_document = "index.html"
-    error_document = "error.html"
+resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
+  bucket = "davidrichey.org"
+  
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
+}
+
+resource "aws_s3_bucket_policy" "allow_access_from_another_account" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  policy = data.aws_iam_policy_document.allow_access_from_another_account.json
+}
+
+data "aws_iam_policy_document" "allow_access_from_another_account" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      aws_s3_bucket.CRC_bucket.arn,
+      "${aws_s3_bucket.CRC_bucket.arn}/*",
+    ]
   }
 }
 
@@ -47,10 +87,11 @@ resource "aws_iam_role_policy_attachment" "dynamodb_full_access" {
 }
 
 resource "aws_lambda_function" "visitor_counter" {
+  # If the file is not in the current working directory you will need to include a path.module in the filename.
+  filename      = "lambda_function.py"
   function_name = "visitorCounter"
   runtime       = "python3.10"
   handler       = "lambda_function.lambda_handler"
-
   role          = aws_iam_role.lambda_role.arn
 
   # Example for Lambda code in S3:
