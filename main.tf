@@ -52,7 +52,10 @@ resource "aws_iam_policy" "iam_s3_bucket_policy" {
           "s3:GetBucketPolicy",
           "s3:DeleteBucketPolicy"
         ],
-        Resource = "${aws_s3_bucket.CRC_bucket.arn}"
+        Resource = [ 
+          "${aws_s3_bucket.CRC_bucket.arn}",
+          "${aws_s3_bucket.CRC_bucket.arn}/*"
+        ]
       }
     ]
   })
@@ -60,6 +63,11 @@ resource "aws_iam_policy" "iam_s3_bucket_policy" {
 
 resource "aws_iam_user" "terraform_david" {
   name = "terraform_david"  # The name of the IAM user
+}
+
+resource "aws_iam_user_policy_attachment" "s3_policy_attach" {
+  user       = aws_iam_user.terraform_david.name
+  policy_arn = aws_iam_policy.iam_s3_bucket_policy.arn
 }
 
 resource "aws_iam_user_policy_attachment" "admin_access" {
@@ -95,11 +103,6 @@ resource "aws_iam_user_policy_attachment" "iam_full_access" {
 resource "aws_iam_user_policy_attachment" "iam_user_change_password" {
   user       = aws_iam_user.terraform_david.name
   policy_arn = "arn:aws:iam::aws:policy/IAMUserChangePassword"
-}
-
-resource "aws_iam_user_policy_attachment" "s3_policy_attach" {
-  user       = aws_iam_user.terraform_david.name
-  policy_arn = aws_iam_policy.iam_s3_bucket_policy.arn
 }
 
 resource "aws_s3_bucket_policy" "CRC_bucket_bucket_policy" {
