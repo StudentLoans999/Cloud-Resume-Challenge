@@ -7,7 +7,7 @@ class TestDynamoDBOperations(unittest.TestCase):
     @mock_dynamodb2
     def test_update_view_count(self):
         # Set up mock DynamoDB
-        dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
+        dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
         dynamodb.create_table(
             TableName='Table-CRC',
             KeySchema=[{'AttributeName': 'id', 'KeyType': 'HASH'}],
