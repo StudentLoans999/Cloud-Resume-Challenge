@@ -14,8 +14,4 @@ def lambda_handler(event, context):
   return {
         'statusCode': 200,
         'body': json.dumps('Function Executed Successfully!')
-<<<<<<< HEAD
-    }
-=======
-    }
->>>>>>> 20c40c9 (Adding Python tests)
+  }
