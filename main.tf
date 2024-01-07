@@ -58,12 +58,47 @@ resource "aws_iam_policy" "iam_s3_bucket_policy" {
   })
 }
 
-resource "aws_iam_user" "david" {
-  name = "david"  # The name of the IAM user
+resource "aws_iam_user" "terraform_david" {
+  name = "terraform_david"  # The name of the IAM user
+}
+
+resource "aws_iam_user_policy_attachment" "admin_access" {
+  user       = aws_iam_user.terraform_david.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+resource "aws_iam_user_policy_attachment" "apigw_admin" {
+  user       = aws_iam_user.terraform_david.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator"
+}
+
+resource "aws_iam_user_policy_attachment" "cloudformation_full_access" {
+  user       = aws_iam_user.terraform_david.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess"
+}
+
+resource "aws_iam_user_policy_attachment" "lambda_full_access" {
+  user       = aws_iam_user.terraform_david.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+}
+
+resource "aws_iam_user_policy_attachment" "billing" {
+  user       = aws_iam_user.terraform_david.name
+  policy_arn = "arn:aws:iam::aws:policy/job-function/Billing"
+}
+
+resource "aws_iam_user_policy_attachment" "iam_full_access" {
+  user       = aws_iam_user.terraform_david.name
+  policy_arn = "arn:aws:iam::aws:policy/IAMFullAccess"
+}
+
+resource "aws_iam_user_policy_attachment" "iam_user_change_password" {
+  user       = aws_iam_user.terraform_david.name
+  policy_arn = "arn:aws:iam::aws:policy/IAMUserChangePassword"
 }
 
 resource "aws_iam_user_policy_attachment" "s3_policy_attach" {
-  user       = aws_iam_user.david.name
+  user       = aws_iam_user.terraform_david.name
   policy_arn = aws_iam_policy.iam_s3_bucket_policy.arn
 }
 
