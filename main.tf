@@ -78,6 +78,29 @@ resource "aws_s3_bucket_acl" "CRC_bucket" {
   acl    = "public-read"
 }
 
+resource "aws_s3_bucket_policy" "allow_access_from_another_account" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  policy = data.aws_iam_policy_document.allow_access_from_another_account.json
+}
+
+data "aws_iam_policy_document" "allow_access_from_another_account" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+      "s3:GetObject",
+    ]
+
+    resources = [
+      aws_s3_bucket.CRC_bucket.arn,
+      "${aws_s3_bucket.CRC_bucket.arn}/*",
+    ]
+  }
+}
+
 resource "aws_dynamodb_table" "visitor_count" {
   name           = "Terraform-Table-CRC"
   billing_mode   = "PAY_PER_REQUEST"
@@ -125,10 +148,7 @@ resource "aws_lambda_function_url" "visitor_counter_url" {
 
   cors {
     allow_credentials = false
-    allow_headers     = ["*"]
-    allow_methods     = ["GET"]
     allow_origins     = ["*"]
-    max_age           = 3600
   }
 }
 
