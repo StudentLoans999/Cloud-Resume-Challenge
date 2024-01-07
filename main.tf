@@ -12,14 +12,25 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_s3_bucket_ownership_controls" "CRC_bucket" {
+resource "aws_s3_bucket_acl" "CRC_bucket" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  acl    = "public-read"
+  depends_on = [aws_s3_bucket_ownership_controls.s3_bucket_acl_ownership]
+}
+
+resource "aws_s3_bucket_ownership_controls" "s3_bucket_acl_ownership" {
   bucket = aws_s3_bucket.CRC_bucket.id
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
+  depends_on = [aws_s3_bucket_public_access_block.bucket_block_public_access]
 }
 
-resource "aws_s3_bucket_public_access_block" "CRC_bucket" {
+resource "aws_iam_user" "terraform_david" {
+  name = "terraform_david"  # The name of the IAM user
+}
+
+resource "aws_s3_bucket_public_access_block" "bucket_block_public_access" {
   bucket = aws_s3_bucket.CRC_bucket.id
 
   block_public_acls       = false
@@ -28,31 +39,16 @@ resource "aws_s3_bucket_public_access_block" "CRC_bucket" {
   restrict_public_buckets = false
 }
 
-resource "aws_s3_bucket_acl" "CRC_bucket" {
-  depends_on = [
-    aws_s3_bucket_ownership_controls.CRC_bucket,
-    aws_s3_bucket_public_access_block.CRC_bucket,
-  ]
-
+resource "aws_s3_bucket_policy" "CRC_bucket_bucket_policy" {
   bucket = aws_s3_bucket.CRC_bucket.id
-  acl    = "public-read"
-}
-
-resource "aws_iam_policy" "iam_s3_bucket_policy" {
-  name        = "IamS3BucketPolicyManagement"
-  description = "IAM Policy to manage the created S3 bucket policy"
-
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
+        Sid = "PublicRead"
         Effect = "Allow",
-        Action = [
-          "s3:PutBucketPolicy",
-          "s3:GetBucketPolicy",
-          "s3:ListBucket",
-          "s3:DeleteBucketPolicy"
-        ],
+        Principal = "*",
+        Action = "s3:GetObject",
         Resource = [ 
           "${aws_s3_bucket.CRC_bucket.arn}",
           "${aws_s3_bucket.CRC_bucket.arn}/*"
@@ -60,16 +56,10 @@ resource "aws_iam_policy" "iam_s3_bucket_policy" {
       }
     ]
   })
+  depends_on = [aws_s3_bucket_public_access_block.bucket_block_public_access]
 }
 
-resource "aws_iam_user" "terraform_david" {
-  name = "terraform_david"  # The name of the IAM user
-}
 
-resource "aws_iam_user_policy_attachment" "s3_policy_attach" {
-  user       = aws_iam_user.terraform_david.name
-  policy_arn = aws_iam_policy.iam_s3_bucket_policy.arn
-}
 
 resource "aws_iam_user_policy_attachment" "admin_access" {
   user       = aws_iam_user.terraform_david.name
@@ -105,24 +95,6 @@ resource "aws_iam_user_policy_attachment" "iam_user_change_password" {
   user       = aws_iam_user.terraform_david.name
   policy_arn = "arn:aws:iam::aws:policy/IAMUserChangePassword"
 }
-
-resource "aws_s3_bucket_policy" "CRC_bucket_bucket_policy" {
-  bucket = aws_s3_bucket.CRC_bucket.id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Sid = "PublicRead"
-        Effect = "Allow",
-        Principal = "*",
-        Action = "s3:GetObject",
-        Resource = "${aws_s3_bucket.CRC_bucket.arn}/*"
-      }
-    ]
-  })
-}
-
 
 resource "aws_s3_bucket" "CRC_bucket" {
   bucket = "terraformbucket.org"
