@@ -19,25 +19,25 @@ resource "aws_s3_bucket" "CRC_bucket" {
 resource "aws_s3_object" "index" {
   bucket = aws_s3_bucket.CRC_bucket.id
   key    = "index.html"
-  source = "C:\\IT\\AWS\\CRC\\index.html"
+  source = "index.html"
 }
 
 resource "aws_s3_object" "error" {
   bucket = aws_s3_bucket.CRC_bucket.id
   key    = "error.html"
-  source = "C:\\IT\\AWS\\CRC\\error.html"
+  source = "error.html"
 }
 
 resource "aws_s3_object" "js" {
   bucket = aws_s3_bucket.CRC_bucket.id
   key    = "script.js"
-  source = "C:\\IT\\AWS\\CRC\\script.js"
+  source = "script.js"
 }
 
 resource "aws_s3_object" "css" {
   bucket = aws_s3_bucket.CRC_bucket.id
   key    = "style.css"
-  source = "C:\\IT\\AWS\\CRC\\style.css"
+  source = "style.css"
 }
 
 resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
@@ -52,31 +52,31 @@ resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
   }
 }
 
-data "aws_iam_policy_document" "allow_access_from_another_account" {
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-
-    actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      aws_s3_bucket.CRC_bucket.arn,
-      "${aws_s3_bucket.CRC_bucket.arn}/*",
-    ]
+resource "aws_s3_bucket_ownership_controls" "CRC_bucket" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
   }
 }
 
-resource "aws_s3_bucket_policy" "allow_access_from_another_account" {
+resource "aws_s3_bucket_public_access_block" "CRC_bucket" {
   bucket = aws_s3_bucket.CRC_bucket.id
-  policy = data.aws_iam_policy_document.allow_access_from_another_account.json
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
 }
 
+resource "aws_s3_bucket_acl" "CRC_bucket" {
+  depends_on = [
+    aws_s3_bucket_ownership_controls.CRC_bucket,
+    aws_s3_bucket_public_access_block.CRC_bucket,
+  ]
 
+  bucket = aws_s3_bucket.CRC_bucket.id
+  acl    = "public-read"
+}
 
 resource "aws_dynamodb_table" "visitor_count" {
   name           = "Terraform-Table-CRC"
