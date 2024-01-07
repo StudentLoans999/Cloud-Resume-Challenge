@@ -10,15 +10,38 @@ terraform {
 
 provider "aws" {
   region = "us-east-1"
-  # Optional: specify credentials here or through other means
 }
 
 resource "aws_s3_bucket" "CRC_bucket" {
-  bucket = "davidrichey.org"
+  bucket = "terraformbucket.org"
+}
+
+resource "aws_s3_object" "index" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  key    = "index.html"
+  source = "C:/IT/AWS/CRC/index.html"
+}
+
+resource "aws_s3_object" "error" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  key    = "error.html"
+  source = "C:/IT/AWS/CRC/error.html"
+}
+
+resource "aws_s3_object" "js" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  key    = "script.js"
+  source = "C:/IT/AWS/CRC/script.js"
+}
+
+resource "aws_s3_object" "css" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  key    = "style.css"
+  source = "C:/IT/AWS/CRC/style.css"
 }
 
 resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
-  bucket = "davidrichey.org"
+  bucket = "terraformbucket.org"
   
   index_document {
     suffix = "index.html"
@@ -54,7 +77,7 @@ data "aws_iam_policy_document" "allow_access_from_another_account" {
 }
 
 resource "aws_dynamodb_table" "visitor_count" {
-  name           = "Table-CRC"
+  name           = "Terraform-Table-CRC"
   billing_mode   = "PAY_PER_REQUEST"
   hash_key       = "id"
 
@@ -87,19 +110,11 @@ resource "aws_iam_role_policy_attachment" "dynamodb_full_access" {
 }
 
 resource "aws_lambda_function" "visitor_counter" {
-  # If the file is not in the current working directory you will need to include a path.module in the filename.
   filename      = "lambda_function.py"
   function_name = "visitorCounter"
   runtime       = "python3.10"
   handler       = "lambda_function.lambda_handler"
   role          = aws_iam_role.lambda_role.arn
-
-  # Example for Lambda code in S3:
-  # s3_bucket = "your-lambda-code-bucket"
-  # s3_key    = "your-lambda-code.zip"
-
-  # For inline code, use the `filename` or `source_code` argument
-  # ... other configurations
 }
 
 resource "aws_lambda_function_url" "visitor_counter_url" {
