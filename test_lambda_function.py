@@ -1,10 +1,10 @@
 import unittest
-from moto import mock_dynamodb2
+from moto import mock_dynamodb
 import boto3
 from lambda_function import lambda_handler
 
 class TestLambdaFunction(unittest.TestCase):
-    @mock_dynamodb2
+    @mock_dynamodb
     def test_lambda_function(self):
         # Mocking DynamoDB
         dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
