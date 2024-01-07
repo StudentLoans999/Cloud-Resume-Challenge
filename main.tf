@@ -19,25 +19,25 @@ resource "aws_s3_bucket" "CRC_bucket" {
 resource "aws_s3_object" "index" {
   bucket = aws_s3_bucket.CRC_bucket.id
   key    = "index.html"
-  source = "C:/IT/AWS/CRC/index.html"
+  source = "C:\\IT\\AWS\\CRC\\index.html"
 }
 
 resource "aws_s3_object" "error" {
   bucket = aws_s3_bucket.CRC_bucket.id
   key    = "error.html"
-  source = "C:/IT/AWS/CRC/error.html"
+  source = "C:\\IT\\AWS\\CRC\\error.html"
 }
 
 resource "aws_s3_object" "js" {
   bucket = aws_s3_bucket.CRC_bucket.id
   key    = "script.js"
-  source = "C:/IT/AWS/CRC/script.js"
+  source = "C:\\IT\\AWS\\CRC\\script.js"
 }
 
 resource "aws_s3_object" "css" {
   bucket = aws_s3_bucket.CRC_bucket.id
   key    = "style.css"
-  source = "C:/IT/AWS/CRC/style.css"
+  source = "C:\\IT\\AWS\\CRC\\style.css"
 }
 
 resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
@@ -50,11 +50,6 @@ resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
   error_document {
     key = "error.html"
   }
-}
-
-resource "aws_s3_bucket_policy" "allow_access_from_another_account" {
-  bucket = aws_s3_bucket.CRC_bucket.id
-  policy = data.aws_iam_policy_document.allow_access_from_another_account.json
 }
 
 data "aws_iam_policy_document" "allow_access_from_another_account" {
@@ -75,6 +70,13 @@ data "aws_iam_policy_document" "allow_access_from_another_account" {
     ]
   }
 }
+
+resource "aws_s3_bucket_policy" "allow_access_from_another_account" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  policy = data.aws_iam_policy_document.allow_access_from_another_account.json
+}
+
+
 
 resource "aws_dynamodb_table" "visitor_count" {
   name           = "Terraform-Table-CRC"
@@ -110,7 +112,7 @@ resource "aws_iam_role_policy_attachment" "dynamodb_full_access" {
 }
 
 resource "aws_lambda_function" "visitor_counter" {
-  filename      = "lambda_function.py"
+  filename      = "lambda_function.zip"
   function_name = "visitorCounter"
   runtime       = "python3.10"
   handler       = "lambda_function.lambda_handler"
