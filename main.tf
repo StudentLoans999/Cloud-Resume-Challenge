@@ -12,46 +12,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_s3_bucket" "CRC_bucket" {
-  bucket = "terraformbucket.org"
-}
-
-resource "aws_s3_object" "index" {
-  bucket = aws_s3_bucket.CRC_bucket.id
-  key    = "index.html"
-  source = "index.html"
-}
-
-resource "aws_s3_object" "error" {
-  bucket = aws_s3_bucket.CRC_bucket.id
-  key    = "error.html"
-  source = "error.html"
-}
-
-resource "aws_s3_object" "js" {
-  bucket = aws_s3_bucket.CRC_bucket.id
-  key    = "script.js"
-  source = "script.js"
-}
-
-resource "aws_s3_object" "css" {
-  bucket = aws_s3_bucket.CRC_bucket.id
-  key    = "style.css"
-  source = "style.css"
-}
-
-resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
-  bucket = "terraformbucket.org"
-  
-  index_document {
-    suffix = "index.html"
-  }
-
-  error_document {
-    key = "error.html"
-  }
-}
-
 resource "aws_s3_bucket_ownership_controls" "CRC_bucket" {
   bucket = aws_s3_bucket.CRC_bucket.id
   rule {
@@ -98,6 +58,46 @@ data "aws_iam_policy_document" "allow_access_from_another_account" {
       aws_s3_bucket.CRC_bucket.arn,
       "${aws_s3_bucket.CRC_bucket.arn}/*",
     ]
+  }
+}
+
+resource "aws_s3_bucket" "CRC_bucket" {
+  bucket = "terraformbucket.org"
+}
+
+resource "aws_s3_object" "index" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  key    = "index.html"
+  source = "index.html"
+}
+
+resource "aws_s3_object" "error" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  key    = "error.html"
+  source = "error.html"
+}
+
+resource "aws_s3_object" "js" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  key    = "script.js"
+  source = "script.js"
+}
+
+resource "aws_s3_object" "css" {
+  bucket = aws_s3_bucket.CRC_bucket.id
+  key    = "style.css"
+  source = "style.css"
+}
+
+resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
+  bucket = "terraformbucket.org"
+  
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
   }
 }
 
