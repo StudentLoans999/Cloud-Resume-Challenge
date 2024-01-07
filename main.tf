@@ -50,6 +50,7 @@ resource "aws_iam_policy" "iam_s3_bucket_policy" {
         Action = [
           "s3:PutBucketPolicy",
           "s3:GetBucketPolicy",
+          "s3:ListBucket",
           "s3:DeleteBucketPolicy"
         ],
         Resource = [ 
