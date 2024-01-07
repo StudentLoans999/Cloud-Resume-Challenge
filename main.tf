@@ -44,9 +44,12 @@ resource "aws_s3_bucket_policy" "allow_access_from_another_account" {
 }
 
 data "aws_iam_policy_document" "allow_access_from_another_account" {
-  statement {
+  statement: {
+
+    sid { "PublicRead"
+    }
+
     principals {
-      type        = "AWS"
       identifiers = ["*"]
     }
 
@@ -55,7 +58,6 @@ data "aws_iam_policy_document" "allow_access_from_another_account" {
     ]
 
     resources = [
-      aws_s3_bucket.CRC_bucket.arn,
       "${aws_s3_bucket.CRC_bucket.arn}/*",
     ]
   }
