@@ -111,7 +111,7 @@ resource "aws_iam_user_policy_attachment" "iam_user_change_password" {
 }
 
 resource "aws_s3_bucket" "CRC_bucket" {
-  bucket = "davidricheyresume.org"
+  bucket = "davidrichey.org"
 }
 
 resource "aws_s3_object" "index" {
@@ -139,7 +139,7 @@ resource "aws_s3_object" "css" {
 }
 
 resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
-  bucket = "davidricheyresume.org"
+  bucket = "davidrichey.org"
   
   index_document {
     suffix = "index.html"
@@ -151,7 +151,7 @@ resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "*.davidricheyresume.org"
+  domain_name       = "*.davidrichey.org"
   validation_method = "DNS"
 
   tags = {
@@ -185,12 +185,12 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_route53_zone" "primary" {
-  name = "davidricheyresume.org"
+  name = "davidrichey.org"
 }
 
 resource "aws_route53_record" "cloudfront_alias" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "*.davidricheyresume.org"
+  name    = "*.davidrichey.org"
   type    = "A"
 
   alias {
@@ -202,7 +202,7 @@ resource "aws_route53_record" "cloudfront_alias" {
 
 resource "aws_route53_record" "subdomain_a_record" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "*.davidricheyresume.org" 
+  name    = "*.davidrichey.org" 
   type    = "A"
 
   alias {
@@ -214,7 +214,7 @@ resource "aws_route53_record" "subdomain_a_record" {
 
 resource "aws_route53_record" "a_record" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "davidricheyresume.org" 
+  name    = "davidrichey.org" 
   type    = "A"
 
   alias {
@@ -226,7 +226,7 @@ resource "aws_route53_record" "a_record" {
 
 resource "aws_route53_record" "cname" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "davidricheyresume.org"  # subdomain
+  name    = "davidrichey.org"  # subdomain
   type    = "CNAME"
   ttl     = 300
   records = [aws_cloudfront_distribution.s3_distribution.domain_name]
@@ -270,7 +270,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
-  aliases = ["*.davidricheyresume.org"]
+  aliases = ["*.davidrichey.org"]
 
   viewer_certificate {
     acm_certificate_arn            = aws_acm_certificate.cert.arn
