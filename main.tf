@@ -163,17 +163,11 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
-resource "aws_acm_certificate" "cert" {
-  domain_name       = "davidrichey.org"
-  validation_method = "DNS"
-  subject_alternative_names = ["*.davidrichey.org"]  # Include if you want to cover subdomains
-
-  // ... other configuration ...
-}
-
 resource "aws_acm_certificate_validation" "cert" {
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+  subject_alternative_names = ["*.davidrichey.org"]  # Include if you want to cover subdomains # delete this line if it messes things up
+
 }
 
 resource "aws_route53_record" "cert_validation" {
