@@ -26,8 +26,8 @@ resource "aws_s3_bucket_ownership_controls" "s3_bucket_acl_ownership" {
   depends_on = [aws_s3_bucket_public_access_block.bucket_block_public_access]
 }
 
-resource "aws_iam_user" "terraform_david" {
-  name = "terraform_david"  # The name of the IAM user
+resource "aws_iam_user" "terraform_CRC" {
+  name = "terraform_CRC"  # The name of the IAM user
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket_block_public_access" {
@@ -76,37 +76,37 @@ resource "aws_s3_bucket_policy" "CRC_bucket_bucket_policy" {
 }
 
 resource "aws_iam_user_policy_attachment" "admin_access" {
-  user       = aws_iam_user.terraform_david.name
+  user       = aws_iam_user.terraform_CRC.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
 resource "aws_iam_user_policy_attachment" "apigw_admin" {
-  user       = aws_iam_user.terraform_david.name
+  user       = aws_iam_user.terraform_CRC.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonAPIGatewayAdministrator"
 }
 
 resource "aws_iam_user_policy_attachment" "cloudformation_full_access" {
-  user       = aws_iam_user.terraform_david.name
+  user       = aws_iam_user.terraform_CRC.name
   policy_arn = "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess"
 }
 
 resource "aws_iam_user_policy_attachment" "lambda_full_access" {
-  user       = aws_iam_user.terraform_david.name
+  user       = aws_iam_user.terraform_CRC.name
   policy_arn = "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
 }
 
 resource "aws_iam_user_policy_attachment" "billing" {
-  user       = aws_iam_user.terraform_david.name
+  user       = aws_iam_user.terraform_CRC.name
   policy_arn = "arn:aws:iam::aws:policy/job-function/Billing"
 }
 
 resource "aws_iam_user_policy_attachment" "iam_full_access" {
-  user       = aws_iam_user.terraform_david.name
+  user       = aws_iam_user.terraform_CRC.name
   policy_arn = "arn:aws:iam::aws:policy/IAMFullAccess"
 }
 
 resource "aws_iam_user_policy_attachment" "iam_user_change_password" {
-  user       = aws_iam_user.terraform_david.name
+  user       = aws_iam_user.terraform_CRC.name
   policy_arn = "arn:aws:iam::aws:policy/IAMUserChangePassword"
 }
 
@@ -153,7 +153,6 @@ resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
 resource "aws_acm_certificate" "cert" {
   domain_name       = "*.davidrichey.org"
   validation_method = "DNS"
-  subject_alternative_names = ["*.davidrichey.org"]  # Include if you want to cover subdomains # Delete this line if it messes things up
 
   tags = {
     Name = "myDomainCert"
@@ -164,12 +163,20 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
-resource "aws_acm_certificate_validation" "cert_validation" {
-  certificate_arn         = aws_acm_certificate.cert.arn
-  validation_record_fqdns = [for record in aws_route53_record.cert_r53_validation : record.fqdn]
+resource "aws_acm_certificate" "cert" {
+  domain_name       = "davidrichey.org"
+  validation_method = "DNS"
+  subject_alternative_names = ["*.davidrichey.org"]  # Include if you want to cover subdomains
+
+  // ... other configuration ...
 }
 
-resource "aws_route53_record" "cert_r53_validation" {
+resource "aws_acm_certificate_validation" "cert" {
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+}
+
+resource "aws_route53_record" "cert_validation" {
   for_each = {
     for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
       name    = dvo.resource_record_name
