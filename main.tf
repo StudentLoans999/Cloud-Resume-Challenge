@@ -200,6 +200,15 @@ resource "aws_route53_record" "cloudfront_alias" {
   }
 }
 
+resource "aws_route53_record" "cname" {
+  zone_id = aws_route53_zone.primary.zone_id
+  name    = "*.terraformbucket.org"  # subdomain
+  type    = "CNAME"
+  ttl     = 300
+  records = [aws_cloudfront_distribution.s3_distribution.domain_name]
+}
+
+
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
     domain_name = aws_s3_bucket.CRC_bucket.bucket_regional_domain_name
