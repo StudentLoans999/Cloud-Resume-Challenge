@@ -337,7 +337,7 @@ output "s3_bucket_name" {
 
 output "s3_bucket_website_endpoint" {
   description = "The website endpoint URL of the S3 bucket"
-  value       = aws_s3_bucket.CRC_bucket.website_endpoint
+  value       = aws_s3_bucket.CRC_bucket.website
 }
 
 output "cloudfront_distribution_domain_name" {
