@@ -271,7 +271,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
-  aliases = ["*.davidrichey.org", "davidrichey.org"]
+  aliases = ["*.davidrichey.org"]
 
   viewer_certificate {
     acm_certificate_arn            = aws_acm_certificate.cert.arn
