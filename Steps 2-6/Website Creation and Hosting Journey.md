@@ -73,7 +73,7 @@ I went to the newly created CloudFront distribution and edited the Behavior to t
   ![image](https://github.com/StudentLoans999/AWS/assets/77641113/a84b88c8-bff0-4c4f-a0a5-2fe0dc366696)
 ***
 ## Action 5
-I then went to AWS Certificate Manager and requested a Public Certificate that I could use for https (I put in the domain name: davidrichey.org and the name *.davidrichey.org). 
+I then went to AWS Certificate Manager and requested a Public Certificate that I could use for https (I put in the domain name: *.davidrichey.org and the name davidrichey.org). 
   
   (https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html)
   
