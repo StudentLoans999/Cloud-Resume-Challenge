@@ -273,7 +273,7 @@ resource "aws_dynamodb_table" "visitor_count" {
 
   attribute {
     name = "id"
-    type = "S"
+    type = "S" # String type for the 'id' attribute
   }
 }
 

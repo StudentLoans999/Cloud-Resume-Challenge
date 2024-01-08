@@ -1,11 +1,17 @@
 import boto3
 import json
+from decimal import Decimal
+
+def decimal_default(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)
+    raise TypeError
 
 def lambda_handler(event, context):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('Terraform-Table-CRC')
 
-    # Update the item in DynamoDB table (if_not_exists sets view_count to 0 if it doesn't exist AKA being run for the first time)
+    # Update the item in DynamoDB table
     response = table.update_item(
         Key={"id": "1"},
         UpdateExpression='SET view_count = if_not_exists(view_count, :start) + :incr',
@@ -13,11 +19,11 @@ def lambda_handler(event, context):
         ReturnValues="UPDATED_NEW"
     )
 
+    # Convert DynamoDB response to JSON serializable format
+    response_json = json.dumps(response, default=decimal_default)
+
     # Construct and return the response
     return {
         'statusCode': 200,
-        'body': json.dumps({
-            'message': 'Function Executed Successfully!',
-            'dynamodbResponse': response
-        })
+        'body': response_json
     }
