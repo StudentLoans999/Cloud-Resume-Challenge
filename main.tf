@@ -154,7 +154,7 @@ resource "aws_acm_certificate" "cert" {
   domain_name       = "*.davidrichey.org"
   validation_method = "DNS"
 
-  subject_alternative_names = "davidrichey.org"
+  subject_alternative_names = ["*.davidrichey.org", "davidrichey.org"]
 
   tags = {
     Name = "myDomainCert"
