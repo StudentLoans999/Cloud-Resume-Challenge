@@ -39,6 +39,10 @@ resource "aws_s3_bucket_public_access_block" "bucket_block_public_access" {
   restrict_public_buckets = false
 }
 
+resource "aws_cloudfront_origin_access_identity" "oai" {
+  comment = "OAI for S3 bucket"
+}
+
 resource "aws_s3_bucket_policy" "CRC_bucket_bucket_policy" {
   bucket = aws_s3_bucket.CRC_bucket.id
   policy = jsonencode({
@@ -53,9 +57,21 @@ resource "aws_s3_bucket_policy" "CRC_bucket_bucket_policy" {
           "${aws_s3_bucket.CRC_bucket.arn}",
           "${aws_s3_bucket.CRC_bucket.arn}/*"
         ]
+      },
+      {
+        Sid      = "CloudFrontAccess"
+        Effect   = "Allow",
+        Principal = {
+          AWS = aws_cloudfront_origin_access_identity.oai.iam_arn
+        },
+        Action   = "s3:GetObject",
+        Resource = [
+          "${aws_s3_bucket.CRC_bucket.arn}/*"
+        ]
       }
     ]
   })
+
   depends_on = [aws_s3_bucket_public_access_block.bucket_block_public_access]
 }
 
@@ -134,6 +150,102 @@ resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
   }
 }
 
+resource "aws_acm_certificate" "cert" {
+  domain_name       = "terraformbucket.org"
+  validation_method = "DNS"
+
+  tags = {
+    Name = "myDomainCert"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate_validation" "cert" {
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = [aws_route53_record.cert_validation.fqdn]
+}
+
+resource "aws_route53_record" "cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name    = dvo.resource_record_name
+      type    = dvo.resource_record_type
+      records = [dvo.resource_record_value]
+    }
+  }
+
+  name    = each.value.name
+  type    = each.value.type
+  zone_id = aws_route53_zone.primary.zone_id
+  records = each.value.records
+  ttl     = 60
+}
+
+resource "aws_route53_zone" "primary" {
+  name = "terraformbucket.org"
+}
+
+resource "aws_route53_record" "cloudfront_alias" {
+  zone_id = aws_route53_zone.primary.zone_id
+  name    = "terraformbucket.org"
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.s3_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_cloudfront_distribution" "s3_distribution" {
+  origin {
+    domain_name = aws_s3_bucket.CRC_bucket.bucket_regional_domain_name
+    origin_id   = "CRC_bucket"
+
+    s3_origin_config {
+      origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
+    }
+  }
+
+  enabled             = true
+  default_root_object = "index.html"
+
+  default_cache_behavior {
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "CRC_bucket"
+
+    forwarded_values {
+      query_string = false
+
+      cookies {
+        forward = "none"
+      }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+  }
+
+  price_class = "PriceClass_100"
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  aliases = ["terraformbucket.org"]
+
+  viewer_certificate {
+    acm_certificate_arn            = aws_acm_certificate.cert.arn
+    ssl_support_method             = "sni-only"
+    minimum_protocol_version       = "TLSv1.2_2021"
+  }
+}
+
 resource "aws_dynamodb_table" "visitor_count" {
   name           = "Terraform-Table-CRC"
   billing_mode   = "PAY_PER_REQUEST"
@@ -207,6 +319,11 @@ resource "aws_lambda_function_url" "visitor_counter_url" {
     allow_credentials = false
     allow_origins     = ["*"]
   }
+}
+
+output "cloudfront_distribution_domain_name" {
+  description = "The domain name of the CloudFront distribution"
+  value       = aws_cloudfront_distribution.s3_distribution.domain_name # replace my_distribution with CloudFront distribution
 }
 
 output "lambda_function_url" {
