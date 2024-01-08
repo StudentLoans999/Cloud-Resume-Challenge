@@ -327,7 +327,7 @@ resource "aws_dynamodb_table_item" "init_item" {
   hash_key   = "id"
 
   item = jsonencode({
-    "id"         : {"S": "view_count"},
+    "id"         : {"S": "1"},
     "view_count" : {"N": "0"}
   })
 }
