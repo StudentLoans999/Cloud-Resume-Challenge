@@ -166,7 +166,7 @@ resource "aws_acm_certificate" "cert" {
 
 resource "aws_acm_certificate_validation" "cert_validation" {
   certificate_arn         = aws_acm_certificate.cert.arn
-  validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+  validation_record_fqdns = [for record in aws_route53_record.cert_r53_validation : record.fqdn]
   subject_alternative_names = ["*.davidrichey.org"]  # Include if you want to cover subdomains
 
 }
