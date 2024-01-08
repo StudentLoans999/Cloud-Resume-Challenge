@@ -151,7 +151,7 @@ resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "terraformbucket.org"
+  domain_name       = "*.terraformbucket.org"
   validation_method = "DNS"
 
   tags = {
@@ -185,12 +185,12 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_route53_zone" "primary" {
-  name = "terraformbucket.org"
+  name = "*.terraformbucket.org"
 }
 
 resource "aws_route53_record" "cloudfront_alias" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "terraformbucket.org"
+  name    = "*.terraformbucket.org"
   type    = "A"
 
   alias {
@@ -202,7 +202,7 @@ resource "aws_route53_record" "cloudfront_alias" {
 
 resource "aws_route53_record" "cname" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "*.terraformbucket.org"  # subdomain
+  name    = "terraformbucket.org"  # subdomain
   type    = "CNAME"
   ttl     = 300
   records = [aws_cloudfront_distribution.s3_distribution.domain_name]
@@ -246,7 +246,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
-  aliases = ["terraformbucket.org"]
+  aliases = ["*.terraformbucket.org"]
 
   viewer_certificate {
     acm_certificate_arn            = aws_acm_certificate.cert.arn
