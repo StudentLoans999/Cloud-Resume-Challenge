@@ -330,9 +330,54 @@ resource "aws_lambda_function_url" "visitor_counter_url" {
   }
 }
 
+output "s3_bucket_name" {
+  description = "The name of the S3 bucket"
+  value       = aws_s3_bucket.CRC_bucket.bucket
+}
+
+output "s3_bucket_website_endpoint" {
+  description = "The website endpoint URL of the S3 bucket"
+  value       = aws_s3_bucket.CRC_bucket.website_endpoint
+}
+
 output "cloudfront_distribution_domain_name" {
   description = "The domain name of the CloudFront distribution"
   value       = aws_cloudfront_distribution.s3_distribution.domain_name # replace my_distribution with CloudFront distribution
+}
+
+output "cloudfront_distribution_id" {
+  description = "The ID of the CloudFront distribution"
+  value       = aws_cloudfront_distribution.s3_distribution.id
+}
+
+output "acm_certificate_arn" {
+  description = "The ARN of the ACM certificate"
+  value       = aws_acm_certificate.cert.arn
+}
+
+output "route53_hosted_zone_id" {
+  description = "The ID of the Route 53 hosted zone"
+  value       = aws_route53_zone.primary.zone_id
+}
+
+output "ns_records_for_domain" {
+  description = "Name server records for the hosted zone"
+  value       = aws_route53_zone.primary.name_servers
+}
+
+output "dynamodb_table_name" {
+  description = "The name of the DynamoDB table"
+  value       = aws_dynamodb_table.visitor_count.name
+}
+
+output "lambda_function_name" {
+  description = "The name of the Lambda function"
+  value       = aws_lambda_function.visitor_counter.function_name
+}
+
+output "lambda_function_arn" {
+  description = "The ARN of the Lambda function"
+  value       = aws_lambda_function.visitor_counter.arn
 }
 
 output "lambda_function_url" {
