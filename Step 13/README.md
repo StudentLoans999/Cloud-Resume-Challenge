@@ -1,4 +1,4 @@
-Created a new GitHub repository called Cloud-Resume-Challenge
+Created a new GitHub branch in my AWS repo called Cloud-Resume-Challenge
 
 All the steps below are given by GitHub (except for configuring your identity)
 
