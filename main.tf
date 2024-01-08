@@ -212,7 +212,7 @@ resource "aws_route53_record" "subdomain_a_record" {
   }
 }
 
-resource "aws_route53_record" "subdomain_a_record" {
+resource "aws_route53_record" "a_record" {
   zone_id = aws_route53_zone.primary.zone_id
   name    = "davidricheyresume.org" 
   type    = "A"
