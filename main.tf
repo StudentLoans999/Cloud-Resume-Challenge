@@ -175,10 +175,10 @@ resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
 resource "aws_acm_certificate" "cert" {
   domain_name = "*.davidrichey.org"
   validation_method = "DNS"
-  subject_alternative_names = ["*.davidrichey.org", "davidrichey.org"] # delete this if it messes up the Certificates
+  subject_alternative_names = ["*.davidrichey.org", "davidrichey.org"] #123 delete this if it messes up the Certificates
 
   tags = {
-    Name = "CRC_Certification"
+    Name = "CRC_Certificate"
   }
 
   lifecycle {
@@ -227,7 +227,7 @@ resource "aws_route53_record" "cloudfront_alias" {
   }
 }
 
-# Creates a Route53 A record: *.davidrichey.org # Delete this if it messes things up
+# Creates a Route53 A record: *.davidrichey.org #123 Delete this if it messes things up
 resource "aws_route53_record" "subdomain_a_record" {
   zone_id = aws_route53_zone.primary.zone_id
   name = "*.davidrichey.org" 
@@ -253,7 +253,7 @@ resource "aws_route53_record" "a_record" {
   }
 }
 
-# Creates a Route53 CNAME record: davidrichey.org # Uncomment this if it is actually needed
+# Creates a Route53 CNAME record: davidrichey.org #123 Uncomment this if it is actually needed
 #resource "aws_route53_record" "cname" {
 #  zone_id = aws_route53_zone.primary.zone_id
 #  name = "davidrichey.org"  # subdomain
@@ -319,6 +319,17 @@ resource "aws_dynamodb_table" "visitor_count" {
     name = "id"
     type = "S" # String type for the 'id' attribute
   }
+}
+
+# Initializes the DynamoDB Table with a specific item (aka creates a default value): id (the attribute) as the Primary Key and view_count with a value of 0
+resource "aws_dynamodb_table_item" "init_item" {
+  table_name = aws_dynamodb_table.visitor_count.name
+  hash_key   = "id"
+
+  item = jsonencode({
+    "id"         : {"S": "view_count"},
+    "view_count" : {"N": "0"}
+  })
 }
 
 # Creates an IAM role for the lambda function to take on: visitorCounter_lambda_execution_role
