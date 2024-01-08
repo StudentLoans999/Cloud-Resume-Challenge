@@ -153,6 +153,7 @@ resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
 resource "aws_acm_certificate" "cert" {
   domain_name       = "*.davidrichey.org"
   validation_method = "DNS"
+  subject_alternative_names = ["*.davidrichey.org"]  # Include if you want to cover subdomains # Delete this line if it messes things up
 
   tags = {
     Name = "myDomainCert"
@@ -163,14 +164,14 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
-resource "aws_acm_certificate_validation" "cert" {
+resource "aws_acm_certificate_validation" "cert_validation" {
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
-  subject_alternative_names = ["*.davidrichey.org"]  # Include if you want to cover subdomains # delete this line if it messes things up
+  subject_alternative_names = ["*.davidrichey.org"]  # Include if you want to cover subdomains
 
 }
 
-resource "aws_route53_record" "cert_validation" {
+resource "aws_route53_record" "cert_r53_validation" {
   for_each = {
     for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
       name    = dvo.resource_record_name
