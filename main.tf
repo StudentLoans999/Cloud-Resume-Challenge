@@ -59,8 +59,6 @@ resource "aws_s3_bucket_policy" "CRC_bucket_bucket_policy" {
   depends_on = [aws_s3_bucket_public_access_block.bucket_block_public_access]
 }
 
-
-
 resource "aws_iam_user_policy_attachment" "admin_access" {
   user       = aws_iam_user.terraform_david.name
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
