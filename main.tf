@@ -163,7 +163,7 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
-resource "aws_acm_certificate" "cert_a" {
+resource "aws_acm_certificate" "cert" {
   domain_name       = "davidrichey.org"
   validation_method = "DNS"
   subject_alternative_names = ["*.davidrichey.org"]  # Include if you want to cover subdomains
@@ -171,7 +171,7 @@ resource "aws_acm_certificate" "cert_a" {
   // ... other configuration ...
 }
 
-resource "aws_acm_certificate_validation" "cert_b" {
+resource "aws_acm_certificate_validation" "cert" {
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 }
@@ -208,29 +208,17 @@ resource "aws_route53_record" "cloudfront_alias" {
   }
 }
 
-resource "aws_route53_record" "cloudfront_apex_alias" {
+resource "aws_route53_record" "subdomain_a_record" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "davidrichey.org"
+  name    = "*.davidrichey.org" 
   type    = "A"
 
   alias {
-    name                   = aws_cloudfront_distribution.s3_distribution.domain_name
-    zone_id                = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
+    name = aws_cloudfront_distribution.s3_distribution.domain_name
+    zone_id = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
     evaluate_target_health = false
   }
 }
-
-#resource "aws_route53_record" "subdomain_a_record" {
-#  zone_id = aws_route53_zone.primary.zone_id
-#  name    = "*.davidrichey.org" 
-#  type    = "A"
-
-  #alias {
-  #  name = aws_cloudfront_distribution.s3_distribution.domain_name
-  #  zone_id = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
-  #  evaluate_target_health = false
-#  }
-#}
 
 resource "aws_route53_record" "a_record" {
   zone_id = aws_route53_zone.primary.zone_id
