@@ -192,7 +192,7 @@ resource "aws_route53_zone" "primary" {
 
 resource "aws_route53_record" "cloudfront_alias" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "davidrichey.org"
+  name    = "*.davidrichey.org"
   type    = "A"
 
   alias {
@@ -271,7 +271,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
-  aliases = ["*.davidrichey.org"]
+  aliases = ["*.davidrichey.org", "davidrichey.org"]
 
   viewer_certificate {
     acm_certificate_arn            = aws_acm_certificate.cert.arn
