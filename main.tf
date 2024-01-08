@@ -111,7 +111,7 @@ resource "aws_iam_user_policy_attachment" "iam_user_change_password" {
 }
 
 resource "aws_s3_bucket" "CRC_bucket" {
-  bucket = "terraformbucket.org"
+  bucket = "davidricheyresume.org"
 }
 
 resource "aws_s3_object" "index" {
@@ -139,7 +139,7 @@ resource "aws_s3_object" "css" {
 }
 
 resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
-  bucket = "terraformbucket.org"
+  bucket = "davidricheyresume.org"
   
   index_document {
     suffix = "index.html"
@@ -151,7 +151,7 @@ resource "aws_s3_bucket_website_configuration" "CRC_bucket" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "*.terraformbucket.org"
+  domain_name       = "*.davidricheyresume.org"
   validation_method = "DNS"
 
   tags = {
@@ -185,12 +185,12 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_route53_zone" "primary" {
-  name = "terraformbucket.org"
+  name = "davidricheyresume.org"
 }
 
 resource "aws_route53_record" "cloudfront_alias" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "*.terraformbucket.org"
+  name    = "*.davidricheyresume.org"
   type    = "A"
 
   alias {
@@ -200,9 +200,33 @@ resource "aws_route53_record" "cloudfront_alias" {
   }
 }
 
+resource "aws_route53_record" "subdomain_a_record" {
+  zone_id = aws_route53_zone.primary.zone_id
+  name    = "*.davidricheyresume.org" 
+  type    = "A"
+
+  alias {
+    name = aws_cloudfront_distribution.s3_distribution.domain_name
+    zone_id = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "subdomain_a_record" {
+  zone_id = aws_route53_zone.primary.zone_id
+  name    = "davidricheyresume.org" 
+  type    = "A"
+
+  alias {
+    name = aws_cloudfront_distribution.s3_distribution.domain_name
+    zone_id = aws_cloudfront_distribution.s3_distribution.hosted_zone_id
+    evaluate_target_health = true
+  }
+}
+
 resource "aws_route53_record" "cname" {
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "terraformbucket.org"  # subdomain
+  name    = "davidricheyresume.org"  # subdomain
   type    = "CNAME"
   ttl     = 300
   records = [aws_cloudfront_distribution.s3_distribution.domain_name]
@@ -246,7 +270,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     }
   }
 
-  aliases = ["*.terraformbucket.org"]
+  aliases = ["*.davidricheyresume.org"]
 
   viewer_certificate {
     acm_certificate_arn            = aws_acm_certificate.cert.arn
