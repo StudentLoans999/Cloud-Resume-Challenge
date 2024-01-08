@@ -185,7 +185,7 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_route53_zone" "primary" {
-  name = "*.terraformbucket.org"
+  name = "terraformbucket.org"
 }
 
 resource "aws_route53_record" "cloudfront_alias" {
