@@ -1,8 +1,8 @@
-Created a nwe GitHub repository called Cloud-Resume-Challenge
+Created a new GitHub repository called Cloud-Resume-Challenge
 
 All the steps below are given by GitHub (except for configuring your identity)
 
-Then in CMD, I change directory (cd) into C:\IT\AWS\CRC\CRC GitHub Source Control repo then ran "git init" in order to initialzie the repo
+Then in CMD, I change directory (cd) into C:\IT\AWS\CRC\CRC GitHub Source Control repo then ran "git init" to initialize the repo
 
 ![image](https://github.com/StudentLoans999/AWS/assets/77641113/bcadfd53-7f70-4a4e-8682-93b39aa11733)
 
