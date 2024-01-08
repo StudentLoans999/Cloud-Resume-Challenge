@@ -154,8 +154,6 @@ resource "aws_acm_certificate" "cert" {
   domain_name       = "*.davidrichey.org"
   validation_method = "DNS"
 
-  subject_alternative_names = ["*.davidrichey.org", "davidrichey.org"]
-
   tags = {
     Name = "myDomainCert"
   }
@@ -226,13 +224,13 @@ resource "aws_route53_record" "a_record" {
   }
 }
 
-#resource "aws_route53_record" "cname" {
-#  zone_id = aws_route53_zone.primary.zone_id
-#  name    = "davidrichey.org"  # subdomain
-#  type    = "CNAME"
-#  ttl     = 300
-#  records = [aws_cloudfront_distribution.s3_distribution.domain_name]
-#}
+resource "aws_route53_record" "cname" {
+  zone_id = aws_route53_zone.primary.zone_id
+  name    = "davidrichey.org"  # subdomain
+  type    = "CNAME"
+  ttl     = 300
+  records = [aws_cloudfront_distribution.s3_distribution.domain_name]
+}
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
   origin {
